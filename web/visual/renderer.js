@@ -1,10 +1,12 @@
+import {renderTerrain,palette} from './terrain.js';
 import {project,unproject,dimensions,depthCompare} from './projection.js';
-import {diamond,poly,scenery,soldier} from './sprites.js';
+import {diamond,scenery,soldier} from './sprites.js';
 export function pickCell(canvas,event,size){const r=canvas.getBoundingClientRect();return unproject((event.clientX-r.left)*canvas.width/r.width,(event.clientY-r.top)*canvas.height/r.height,size);}
-const palette={plain:'#719348',road:'#ac9a60',forest:'#55783b',mountain:'#657159',water:'#307f96',unknown:'#162624'};
+const terrainLayers=new WeakMap();
 export function renderMap(canvas,g,{colors,selected,cell,hints,position,flash}){
  const d=dimensions(g.size);canvas.style.setProperty('--map-ratio',d.width/d.height);if(canvas.width!==d.width||canvas.height!==d.height){canvas.width=d.width;canvas.height=d.height;}const c=canvas.getContext('2d');c.clearRect(0,0,d.width,d.height);c.imageSmoothingEnabled=false;c.lineWidth=1;
- for(const t of [...g.tiles].sort(depthCompare)){const p=project(t.x,t.y,g.size),water=t.terrain==='water',y=p.y+(water?3:0);poly(c,[[p.x-32,y],[p.x,y+16],[p.x+32,y],[p.x+32,y+9],[p.x,y+25],[p.x-32,y+9]],water?'#244e59':'#474b30');diamond(c,p.x,y,palette[t.terrain],'#263e343b');if(t.terrain!=='unknown'){c.save();c.beginPath();c.moveTo(p.x,y-16);c.lineTo(p.x+32,y);c.lineTo(p.x,y+16);c.lineTo(p.x-32,y);c.clip();for(let i=0;i<9;i++){const dx=((t.x*17+t.y*7+i*13)%55)-27,dy=((t.x*3+t.y*19+i*7)%26)-13;c.fillStyle=water?(i%2?'#73b6b5':'#408fa0'):(i%2?'#d4cc8044':'#243d282c');c.fillRect(p.x+dx,y+dy,water?7:3,2);}c.restore();}if(!t.visible)diamond(c,p.x,y,'#07120ba8');}
+ const terrainKey=g.size+'|'+g.tiles.map(t=>t.terrain+','+Number(t.visible)+','+(t.building||'')).join(';');
+ let cached=terrainLayers.get(canvas);if(!cached||cached.key!==terrainKey){const layer=document.createElement('canvas');layer.width=d.width;layer.height=d.height;renderTerrain(layer.getContext('2d'),g);cached={key:terrainKey,layer};terrainLayers.set(canvas,cached);}c.drawImage(cached.layer,0,0);
  for(const t of hints.moves.values()){const p=project(t.x,t.y,g.size);diamond(c,p.x,p.y,'#66d6cb44','#a6eee0');c.fillStyle='#e9ffdc';c.font='9px monospace';c.textAlign='center';c.fillText(t.cost,p.x,p.y+12);}
  for(const k of hints.attacks){const t=g.tiles[k],p=project(t.x,t.y,g.size),enemy=g.units.some(u=>u.owner!==g.you&&u.x===t.x&&u.y===t.y);c.setLineDash(enemy?[]:[3,3]);diamond(c,p.x,p.y,enemy?'#f27e5b66':null,'#efac77');c.setLineDash([]);}
  if(cell){const p=project(cell.x,cell.y,g.size);c.lineWidth=2;diamond(c,p.x,p.y,null,'#ffe1a0');c.lineWidth=1;}

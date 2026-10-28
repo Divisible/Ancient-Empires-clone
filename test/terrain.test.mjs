@@ -1,0 +1,5 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {noise,adjacent,bridgeAxis} from '../web/visual/terrain.js';
+const map=()=>({size:3,tiles:Array.from({length:9},(_,i)=>({x:i%3,y:Math.floor(i/3),terrain:'plain',building:null,visible:true}))});
+test('visual variation is deterministic, bounded and varied',()=>{const values=[];for(let x=0;x<30;x++){const a=noise(x,2,3);assert.equal(a,noise(x,2,3));assert(a>=0&&a<1);values.push(a);}assert(new Set(values).size>20);});
+test('unknown terrain cannot create shoreline or bridge hints',()=>{const g=map(),t=g.tiles[4];g.tiles[1].terrain='unknown';assert.equal(adjacent(g,t)[3].neighbor,null);t.terrain='road';g.tiles[7].terrain='water';assert.equal(bridgeAxis(g,t),null);g.tiles[1].terrain='water';assert.equal(bridgeAxis(g,t),'x');t.building='castle';assert.equal(bridgeAxis(g,t),null);});
+test('visual adjacency does not wrap edges or mutate map',()=>{const g=map(),before=JSON.stringify(g);assert.equal(adjacent(g,g.tiles[0])[2].neighbor,null);assert.equal(adjacent(g,g.tiles[0])[3].neighbor,null);for(const t of g.tiles)bridgeAxis(g,t);assert.equal(JSON.stringify(g),before);});
