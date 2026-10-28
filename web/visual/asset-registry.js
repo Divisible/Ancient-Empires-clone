@@ -26,3 +26,11 @@ export function objectAsset(tile){return tile.building|| (tile.terrain==='forest
 export function waterAsset(g,t){if(t.terrain!=='water')return null;const at=(x,y)=>x>=0&&y>=0&&x<g.size&&y<g.size?g.tiles[y*g.size+x]:null;const land=q=>q&&q.terrain!=='unknown'&&q.terrain!=='water';const dirs=[[1,0],[0,1],[-1,0],[0,-1]],diags=[[1,1],[-1,1],[-1,-1],[1,-1]];let mask=0,diagonal=0;dirs.forEach(([x,y],i)=>{if(land(at(t.x+x,t.y+y)))mask|=1<<i;});diags.forEach(([x,y],i)=>{if(land(at(t.x+x,t.y+y)))diagonal|=1<<i;});if(mask===5)return 'river_y';if(mask===10)return 'river_x';if(mask)return `coast_${mask}`;if(diagonal)return `coast_inner_${diagonal}`;return terrainAsset(t);}
 
 export function cliffAsset(g,t){let mask=0;[[1,0],[0,1],[-1,0],[0,-1]].forEach(([dx,dy],i)=>{const x=t.x+dx,y=t.y+dy;if(x>=0&&y>=0&&x<g.size&&y<g.size&&g.tiles[y*g.size+x].terrain==='water')mask|=1<<i;});return mask?'cliff_'+mask:null;}
+
+// Uploaded terrain pack v1. Placement is visual only; logical grid stays 64x32.
+terrainVariants.plain=['grass_01','grass_02','grass_03'];
+terrainVariants.water=['water_01'];
+for(const id of terrainVariants.plain)Object.assign(assets[id],{src:`/assets/terrain/${id}.png`,visualSize:[84,40],anchor:[.5,.47],tileOffset:[0,0],depthOffset:0});
+Object.assign(assets.water_01,{src:'/assets/water/water_01.png',visualSize:[86,42],anchor:[.5,.5],tileOffset:[7/32,7/32],depthOffset:0});
+for(const id of ['coast_1','coast_3','coast_7'])Object.assign(assets[id],{src:null,providedSource:`/assets/water/${id}.png`,disabledReason:'Painted coastline orientation does not match logical mask; redraw without rotation.',visualSize:[66,50],anchor:[.5,.6],tileOffset:[0,0],depthOffset:0});
+for(const id of ['bridge_x','bridge_y'])Object.assign(assets[id],{src:null,providedSource:`/assets/bridges/${id}.png`,disabledReason:'Both decks use the same diagonal and include surrounding water/land; supply deck-only sprites with opposite axes.',visualSize:[80,64],anchor:[.5,.68],tileOffset:[0,0],depthOffset:0});
