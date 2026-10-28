@@ -1,3 +1,5 @@
+import {terrainAsset,waterAsset,cliffAsset} from './asset-registry.js';
+import {drawAsset} from './asset-renderer.js';
 import {diamond,poly} from './sprites.js';
 import {project,depthCompare} from './projection.js';
 export const palette={plain:'#71873c',road:'#877b48',forest:'#526c32',mountain:'#707557',water:'#267e99',unknown:'#162624'};
@@ -22,12 +24,12 @@ function bridge(c,x,y,axis){const p=(u,v)=>uv(x,y,axis==='x'?u:v,axis==='x'?v:u)
 export function renderTerrain(c,g){const tiles=[...g.tiles].sort(depthCompare);
  for(const t of tiles){const {x,y}=project(t.x,t.y,g.size);if(t.terrain==='unknown'){diamond(c,x,y,palette.unknown);continue;}
  const water=t.terrain==='water';for(const e of adjacent(g,t).slice(0,2))if(!e.neighbor){poly(c,[[x+e.a[0],y+e.a[1]],[x+e.b[0],y+e.b[1]],[x+e.b[0],y+e.b[1]+22],[x+e.a[0],y+e.a[1]+22]],water?'#204c5b':'#514d34');}
- ground(c,g,t,x,y+(water?7:0));
+ if(!drawAsset(c,water?waterAsset(g,t):terrainAsset(t),t.x,t.y,g.size))ground(c,g,t,x,y+(water?7:0));
  }
  // Shore faces connect the raised land plane to the lower water plane.
  for(const t of tiles){if(t.terrain==='unknown'||t.terrain==='water')continue;const {x,y}=project(t.x,t.y,g.size);const axis=bridgeAxis(g,t);
- if(!axis)for(const e of adjacent(g,t)){if(e.neighbor?.terrain!=='water')continue;const a=[x+e.a[0],y+e.a[1]],b=[x+e.b[0],y+e.b[1]];poly(c,[a,b,[b[0],b[1]+7],[a[0],a[1]+7]],'#716d4c','#4b604c');stroke(c,[a,b],'#b5aa69',2);for(let i=1;i<6;i++){const q=i/6,px=Math.round(a[0]+(b[0]-a[0])*q),py=Math.round(a[1]+(b[1]-a[1])*q);c.fillStyle=i%2?'#8d9172':'#444f42';c.fillRect(px,py+2,3,4);}}
- if(axis){diamond(c,x,y+7,'#287f98');bridge(c,x,y,axis);}
+ if(!axis&&!drawAsset(c,cliffAsset(g,t),t.x,t.y,g.size))for(const e of adjacent(g,t)){if(e.neighbor?.terrain!=='water')continue;const a=[x+e.a[0],y+e.a[1]],b=[x+e.b[0],y+e.b[1]];poly(c,[a,b,[b[0],b[1]+7],[a[0],a[1]+7]],'#716d4c','#4b604c');stroke(c,[a,b],'#b5aa69',2);for(let i=1;i<6;i++){const q=i/6,px=Math.round(a[0]+(b[0]-a[0])*q),py=Math.round(a[1]+(b[1]-a[1])*q);c.fillStyle=i%2?'#8d9172':'#444f42';c.fillRect(px,py+2,3,4);}}
+ if(axis){diamond(c,x,y+7,'#287f98');if(!drawAsset(c,'bridge_'+axis,t.x,t.y,g.size))bridge(c,x,y,axis);}
  }
  for(const t of tiles)if(!t.visible&&t.terrain!=='unknown'){const p=project(t.x,t.y,g.size);diamond(c,p.x,p.y,'#07120ba8');}
 }

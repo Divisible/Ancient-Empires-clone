@@ -48,3 +48,5 @@ mountChangelog(document.querySelector('#changelog'));
 canvas.onmousemove=ev=>{if(!state?.game)return;const p=pickCell(canvas,ev,state.game.size),t=p?state.game.tiles[p.y*state.game.size+p.x]:null;$('#terrain-tip').textContent=t?({plain:'Равнина · движение 1',road:'Дорога · движение 1',forest:'Лес · движение 2 · DEF +20%',mountain:'Горы · движение 3 · DEF +40%',water:'Вода · только полёт',unknown:'Неизведанная земля'}[t.terrain]):'Наведите на клетку';};
 
 $('#match-options').append($('#players-card'),$('#rules-card'));
+
+window.addEventListener('knyaz-assets-ready',()=>{if(active&&state?.game)draw();});
