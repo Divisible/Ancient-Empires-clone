@@ -1,0 +1,12 @@
+{
+  "name": "knyaz-realms",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test --test-isolation=none"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

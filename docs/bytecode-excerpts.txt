@@ -1,0 +1,45 @@
+CFR 0.152 output; reference only, not buildable source. Obfuscated overloads may share names.
+
+e.java:99:     public static final int a(int n) {
+e.java:100:         return e.a(0, n);
+e.java:101:     }
+e.java:102: 
+e.java:103:     public static final int a(int n, int n2) {
+e.java:104:         return n + Math.abs(a.nextInt()) % (n2 - n);
+e.java:105:     }
+e.java:106: 
+e.java:107:     public static final int a() {
+e.java:108:         return a.nextInt();
+e.java:109:     }
+e.java:110: 
+e.java:111:     public static final byte[] a(String string, int n) throws Exception {
+e.java:112:         RecordStore recordStore = RecordStore.openRecordStore((String)string, (boolean)false);
+e.java:113:         byte[] byArray = recordStore.getRecord(n + 1);
+e.java:114:         recordStore.closeRecordStore();
+e.java:115:         return byArray;
+e.java:116:     }
+e.java:117: 
+e.java:118:     public static final void a(String string, int n, byte[] byArray) throws Exception {
+e.java:119:         RecordStore recordStore = RecordStore.openRecordStore((String)string, (boolean)true);
+e.java:120:         int n2 = recordStore.getNumRecords();
+e.java:121:         if (n2 <= n) {
+e.java:122:             while (n2 < n) {
+e.java:123:                 recordStore.addRecord(null, 0, 0);
+e.java:124:                 ++n2;
+e.java:125:             }
+e.java:126:             recordStore.addRecord(byArray, 0, byArray.length);
+e.java:127:         } else {
+e.java:128:             recordStore.setRecord(n + 1, byArray, 0, byArray.length);
+e.java:129:         }
+e.java:130:         recordStore.closeRecordStore();
+e.java:131:     }
+e.java:132: 
+e.java:133:     public static final int a(String string) {
+e.java:134:         int n = 0;
+e.java:135:         try {
+e.java:136:             RecordStore recordStore = RecordStore.openRecordStore((String)string, (boolean)true);
+e.java:137:             n = recordStore.getSizeAvailable();
+e.java:138:             recordStore.closeRecordStore();
+e.java:139:         }
+e.java:140:         catch (Exception exception) {}
+e.java:141:         return n;
